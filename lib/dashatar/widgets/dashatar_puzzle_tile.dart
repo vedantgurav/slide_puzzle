@@ -67,7 +67,7 @@ class DashatarPuzzleTileState extends State<DashatarPuzzleTile>
     _scale = Tween<double>(begin: 1, end: 0.94).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0, 1, curve: Curves.easeInOut),
+        curve: const Interval(0, 0.25, curve: Curves.easeInOut),
       ),
     );
 
@@ -98,8 +98,8 @@ class DashatarPuzzleTileState extends State<DashatarPuzzleTile>
             PuzzleStatus.incomplete;
 
     final movementDuration = status == DashatarPuzzleStatus.loading
-        ? const Duration(milliseconds: 800)
-        : const Duration(milliseconds: 370);
+        ? const Duration(milliseconds: 250)
+        : const Duration(milliseconds: 175);
 
     final canPress = hasStarted && puzzleIncomplete;
 

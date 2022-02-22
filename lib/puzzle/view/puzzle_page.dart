@@ -163,9 +163,7 @@ class PuzzleHeader extends StatelessWidget {
       child: ResponsiveLayoutBuilder(
         small: (context, child) => Stack(
           children: [
-            const Align(
-              child: PuzzleLogo(),
-            ),
+
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
@@ -182,7 +180,7 @@ class PuzzleHeader extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              PuzzleLogo(),
+
               PuzzleMenu(),
             ],
           ),
@@ -194,7 +192,6 @@ class PuzzleHeader extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              PuzzleLogo(),
               PuzzleMenu(),
             ],
           ),
@@ -273,17 +270,26 @@ class PuzzleSections extends StatelessWidget {
 @visibleForTesting
 class PuzzleBoard extends StatelessWidget {
   /// {@macro puzzle_board}
-  const PuzzleBoard({Key? key}) : super(key: key);
+  // const PuzzleBoard({Key? key}) : super(key: key);
+
+  const PuzzleBoard({
+    Key? key,
+  }) : super(key: key);
+
+  /// The entry animation of this widget.
+  // final DashatarShareDialogEnterAnimation animation;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
     final puzzle = context.select((PuzzleBloc bloc) => bloc.state.puzzle);
-
     final size = puzzle.getDimension();
     if (size == 0) return const CircularProgressIndicator();
 
-    return PuzzleKeyboardHandler(
+
+
+    return Container(
+      child: PuzzleKeyboardHandler(
       child: BlocListener<PuzzleBloc, PuzzleState>(
         listener: (context, state) {
           if (theme.hasTimer && state.puzzleStatus == PuzzleStatus.complete) {
@@ -302,7 +308,8 @@ class PuzzleBoard extends StatelessWidget {
               .toList(),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

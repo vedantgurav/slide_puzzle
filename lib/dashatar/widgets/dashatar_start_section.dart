@@ -58,10 +58,15 @@ class DashatarStartSection extends StatelessWidget {
           large: 32,
         ),
         ResponsiveLayoutBuilder(
-          small: (_, __) => const SizedBox(),
-          medium: (_, __) => const SizedBox(),
-          large: (_, __) => const DashatarPuzzleActionButton(),
+          small: (_, __) => const SimplePuzzleShuffleButton(),
+          medium: (_, __) => const SimplePuzzleShuffleButton(),
+          large: (_, __) => const SimplePuzzleShuffleButton(),
         ),
+        // ResponsiveLayoutBuilder(
+        //   small: (_, __) => const SimplePuzzleShuffleButton(),
+        //   medium: (_, __) => const SimplePuzzleShuffleButton(),
+        //   large: (_, __) => const DashatarPuzzleActionButton()
+        // ),
         ResponsiveLayoutBuilder(
           small: (_, __) => const DashatarTimer(),
           medium: (_, __) => const DashatarTimer(),
@@ -69,6 +74,31 @@ class DashatarStartSection extends StatelessWidget {
         ),
         const ResponsiveGap(small: 12),
       ],
+    );
+  }
+}
+
+@visibleForTesting
+class SimplePuzzleShuffleButton extends StatelessWidget {
+  /// {@macro puzzle_shuffle_button}
+  const SimplePuzzleShuffleButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PuzzleButton(
+      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleEvolve()),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/shuffle_icon.png',
+            width: 17,
+            height: 17,
+          ),
+          SizedBox(width:10),
+          Text(context.l10n.puzzleShuffle),
+        ],
+      ),
     );
   }
 }
