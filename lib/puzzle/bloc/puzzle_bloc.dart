@@ -1,5 +1,5 @@
 // ignore_for_file: public_member_api_docs
-
+import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -14,6 +14,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<PuzzleReset>(_onPuzzleReset);
+    on<PuzzleEvolve>(_onPuzzleEvolve);
   }
 
   final int _size;
@@ -36,9 +37,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   void _onTileTapped(TileTapped event, Emitter<PuzzleState> emit) {
     final tappedTile = event.tile;
     if (state.puzzleStatus == PuzzleStatus.incomplete) {
-      if (state.puzzle.isTileMovable(tappedTile)) {
+      if (state.puzzle.canTileEvolve(tappedTile)) {
         final mutablePuzzle = Puzzle(tiles: [...state.puzzle.tiles]);
-        final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
+        final puzzle = mutablePuzzle.evolveTile(tappedTile);
         if (puzzle.isComplete()) {
           emit(
             state.copyWith(
@@ -73,6 +74,29 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     }
   }
 
+  void _onPuzzleEvolve(PuzzleEvolve event, Emitter<PuzzleState> emit) {
+    List<Tile> newSequence = [];
+    final movableTiles = state.puzzle.getEvolvableTiles();
+    final randomIndex = Random().nextInt(movableTiles.length);
+    final movedTile = movableTiles[randomIndex];
+    final puzzle = state.puzzle.evolveTile(movedTile);
+    newSequence.addAll(state.evolutionSequence);
+    newSequence.add(movedTile);
+    state.puzzle.printEvolvableTiles(newSequence);
+    emit(
+      state.copyWith(
+        puzzle: puzzle.sort(),
+        tileMovementStatus: TileMovementStatus.moved,
+        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        numberOfMoves: state.numberOfMoves + 1,
+        lastTappedTile: movedTile,
+        evolutionSequence: newSequence,
+      ),
+    );
+
+
+  }
+
   void _onPuzzleReset(PuzzleReset event, Emitter<PuzzleState> emit) {
     final puzzle = _generatePuzzle(_size);
     emit(
@@ -105,7 +129,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
     if (shuffle) {
       // Randomize only the current tile posistions.
-      currentPositions.shuffle(random);
+      // currentPositions.shuffle(random);
     }
 
     var tiles = _getTileListFromPositions(
@@ -119,15 +143,15 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     if (shuffle) {
       // Assign the tiles new current positions until the puzzle is solvable and
       // zero tiles are in their correct position.
-      while (!puzzle.isSolvable() || puzzle.getNumberOfCorrectTiles() != 0) {
-        currentPositions.shuffle(random);
-        tiles = _getTileListFromPositions(
-          size,
-          correctPositions,
-          currentPositions,
-        );
-        puzzle = Puzzle(tiles: tiles);
-      }
+      // while (!puzzle.isSolvable() || puzzle.getNumberOfCorrectTiles() != 0) {
+      //   currentPositions.shuffle(random);
+      //   tiles = _getTileListFromPositions(
+      //     size,
+      //     correctPositions,
+      //     currentPositions,
+      //   );
+      //   puzzle = Puzzle(tiles: tiles);
+      // }
     }
 
     return puzzle;

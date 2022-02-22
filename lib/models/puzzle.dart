@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:math';
 import 'dart:ui';
 
@@ -52,6 +53,16 @@ class Puzzle extends Equatable {
     return tiles.singleWhere((tile) => tile.isWhitespace);
   }
 
+  /// Gets the single tile object in the puzzle that evolved last.
+  Tile getLastEvolvedTile() {
+    for (final tile in tiles) {
+      if (tile.lastEvolved) {
+        return tile;
+      }
+    }
+    return getWhitespaceTile();
+  }
+
   /// Gets the tile relative to the whitespace tile in the puzzle
   /// defined by [relativeOffset].
   Tile? getTileRelativeToWhitespaceTile(Offset relativeOffset) {
@@ -79,9 +90,46 @@ class Puzzle extends Equatable {
     return numberOfCorrectTiles;
   }
 
+  /// Returns list of tiles that are movable.
+  List<Tile> getEvolvableTiles() {
+    List<Tile> movableTiles = [];
+    final whitespaceTile = getWhitespaceTile();
+    for (final tile in tiles) {
+      if (tile != whitespaceTile && canTileEvolve(tile)) {
+        movableTiles.add(tile);
+      }
+    }
+    return movableTiles;
+  }
+
   /// Determines if the puzzle is completed.
   bool isComplete() {
     return (tiles.length - 1) - getNumberOfCorrectTiles() == 0;
+  }
+
+  /// Determines if the passed tile was the last to move.
+  bool didTileJustMove(Tile tile) {
+    if (tile == getLastEvolvedTile()) return true;
+    return false;
+  }
+
+  /// Determines if the passed tile is adjacent to whitespace
+  bool canTileEvolve(Tile tile) {
+    final whitespaceTile = getWhitespaceTile();
+    if (tile == whitespaceTile || didTileJustMove(tile)) {
+      return false;
+    }
+
+    final xDist =
+        (whitespaceTile.currentPosition.x - tile.currentPosition.x).abs();
+    final yDist =
+        (whitespaceTile.currentPosition.y - tile.currentPosition.y).abs();
+
+    // A tile must be in the same row or column as the whitespace to move.
+    if (xDist <= 1 && yDist <= 1 && xDist != yDist) {
+      return true;
+    }
+    return false;
   }
 
   /// Determines if the tapped tile can move in the direction of the whitespace
@@ -202,6 +250,43 @@ class Puzzle extends Equatable {
       );
     }
 
+    return Puzzle(tiles: tiles);
+  }
+
+  /// Helper function for printing the available tiles for moving.
+  void printEvolvableTiles(List<Tile> movableTiles) {
+    final buffer = StringBuffer();
+    final tilesLength = movableTiles.length;
+    buffer.write('$tilesLength: ');
+    for (final tile in movableTiles) {
+      final index = tile.value;
+      buffer.write('$index, ');
+    }
+    developer.log(buffer.toString());
+  }
+
+  /// Moves a single tile into the whitespace and sets the tile as `lastMoved`.
+  Puzzle evolveTile(Tile tileToSwap) {
+    final tileIndex = tiles.indexOf(tileToSwap);
+    final tile = tiles[tileIndex];
+    final whitespaceTile = getWhitespaceTile();
+    final whitespaceTileIndex = tiles.indexOf(whitespaceTile);
+    final previousEvolution = getLastEvolvedTile();
+    final previousEvolutionIndex = tiles.indexOf(previousEvolution);
+
+    // developer.log('$tileIndex, $previousEvolutionIndex, $whitespaceTileIndex');
+
+    tiles[previousEvolutionIndex] = previousEvolution.copyWith(
+      currentPosition: previousEvolution.currentPosition,
+    );
+    // Swap current board positions of the moving tile and the whitespace.
+    tiles[tileIndex] = tile.copyWith(
+      currentPosition: whitespaceTile.currentPosition,
+      lastEvolved: true,
+    );
+    tiles[whitespaceTileIndex] = whitespaceTile.copyWith(
+      currentPosition: tile.currentPosition,
+    );
     return Puzzle(tiles: tiles);
   }
 

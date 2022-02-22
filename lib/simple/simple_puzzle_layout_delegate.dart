@@ -377,7 +377,7 @@ class SimplePuzzleShuffleButton extends StatelessWidget {
     return PuzzleButton(
       textColor: PuzzleColors.primary0,
       backgroundColor: PuzzleColors.primary6,
-      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleReset()),
+      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleEvolve()),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

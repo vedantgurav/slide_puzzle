@@ -11,6 +11,7 @@ class Tile extends Equatable {
     required this.correctPosition,
     required this.currentPosition,
     this.isWhitespace = false,
+    this.lastEvolved = false,
   });
 
   /// Value representing the correct position of [Tile] in a list.
@@ -26,13 +27,17 @@ class Tile extends Equatable {
   /// Denotes if the [Tile] is the whitespace tile or not.
   final bool isWhitespace;
 
+ /// Denotes if the [Tile] is the one that evolved last.
+  final bool lastEvolved;
+
   /// Create a copy of this [Tile] with updated current position.
-  Tile copyWith({required Position currentPosition}) {
+  Tile copyWith({required Position currentPosition, bool lastEvolved=false}) {
     return Tile(
       value: value,
       correctPosition: correctPosition,
       currentPosition: currentPosition,
       isWhitespace: isWhitespace,
+      lastEvolved: lastEvolved,
     );
   }
 
@@ -42,5 +47,6 @@ class Tile extends Equatable {
         correctPosition,
         currentPosition,
         isWhitespace,
+        lastEvolved,
       ];
 }
